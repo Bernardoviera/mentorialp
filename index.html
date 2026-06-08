@@ -33,8 +33,10 @@
       line-height: 1.6;
     }
 
-    h1, h2, h3, .logo, .section-title, .form-title, .stat-num,
-    .result-num, .b1-text h3, .mentor-content h2, .footer-logo {
+    /* Syne apenas nos cards de problema/solução */
+    .psq-face, .psq-split-card,
+    .psq-line, .psq-split-line,
+    .psq-face-label, .psq-split-label {
       font-family: 'Syne', sans-serif;
     }
 
@@ -257,7 +259,7 @@
     /* flip card */
     .psq-flip-wrap {
       perspective: 1400px;
-      width: 560px;
+      width: 380px;
       max-width: calc(100vw - 48px);
       position: absolute;
       z-index: 3;
@@ -271,7 +273,7 @@
 
     .psq-card {
       width: 100%;
-      min-height: 380px;
+      min-height: 520px;
       position: relative;
       transform-style: preserve-3d;
       transition: transform .85s cubic-bezier(.4,0,.2,1);
@@ -281,13 +283,24 @@
     .psq-face {
       position: absolute; inset: 0;
       border-radius: 24px;
-      padding: 40px 40px 44px;
+      padding: 36px 32px 40px;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       display: flex;
       flex-direction: column;
       gap: 0;
+      /* força layer de GPU separado — corrige bug iOS */
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      transition: opacity .1s ease;
     }
+    /* garante que o verso não vaza no mobile */
+    .psq-back {
+      -webkit-transform: rotateY(180deg) translateZ(1px);
+      transform: rotateY(180deg) translateZ(1px);
+    }
+    /* estado de visibilidade controlado por JS no meio do flip */
+    .psq-face.face-hidden { opacity: 0 !important; }
     .psq-front {
       background: rgba(15,23,42,.85);
       border: 2px solid rgba(239,68,68,.6);
@@ -359,11 +372,10 @@
     /* split cards */
     .psq-split-card {
       position: absolute;
-      width: 560px;
+      width: 380px;
       max-width: calc(100vw - 48px);
-      min-height: 380px;
       border-radius: 24px;
-      padding: 40px 40px 44px;
+      padding: 36px 32px 40px;
       display: flex;
       flex-direction: column;
       opacity: 0;
@@ -1574,7 +1586,10 @@
         // 2 — flip
         await wait(500);
         card.classList.add('flipped');
-        await wait(950);
+        // no meio da animação esconde o front via JS — fix backface mobile
+        await wait(420);
+        card.querySelector('.psq-front').classList.add('face-hidden');
+        await wait(530);
 
         // 3 — type solutions
         for (let i = 0; i < SOLUTIONS.length; i++) {
