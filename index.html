@@ -6,7 +6,7 @@
   <title>Mentoria de Tráfego Pago | Do Zero ao Resultado</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -31,6 +31,11 @@
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
+    }
+
+    h1, h2, h3, .logo, .section-title, .form-title, .stat-num,
+    .result-num, .b1-text h3, .mentor-content h2, .footer-logo {
+      font-family: 'Syne', sans-serif;
     }
 
     /* overflow-x no wrapper, não no body (evita quebrar IntersectionObserver no mobile) */
@@ -285,13 +290,13 @@
     }
     .psq-front {
       background: rgba(15,23,42,.85);
-      border: 1px solid rgba(239,68,68,.35);
-      box-shadow: 0 0 60px rgba(239,68,68,.08), 0 20px 60px rgba(0,0,0,.4);
+      border: 2px solid rgba(239,68,68,.6);
+      box-shadow: 0 0 40px rgba(239,68,68,.18), 0 0 0 1px rgba(239,68,68,.1), 0 20px 60px rgba(0,0,0,.4);
     }
     .psq-back {
       background: rgba(15,23,42,.85);
-      border: 1px solid rgba(34,197,94,.35);
-      box-shadow: 0 0 60px rgba(34,197,94,.08), 0 20px 60px rgba(0,0,0,.4);
+      border: 2px solid rgba(34,197,94,.6);
+      box-shadow: 0 0 40px rgba(34,197,94,.18), 0 0 0 1px rgba(34,197,94,.1), 0 20px 60px rgba(0,0,0,.4);
       transform: rotateY(180deg);
     }
 
@@ -367,18 +372,18 @@
     }
     .psq-split-left {
       background: rgba(15,23,42,.9);
-      border: 1px solid rgba(239,68,68,.4);
-      box-shadow: 0 0 60px rgba(239,68,68,.12), 0 20px 60px rgba(0,0,0,.5);
-      transform: translateX(0);
+      border: 2px solid rgba(239,68,68,.6);
+      box-shadow: 0 0 40px rgba(239,68,68,.2), 0 0 0 1px rgba(239,68,68,.1), 0 20px 60px rgba(0,0,0,.5);
+      transform: translateY(0);
     }
     .psq-split-right {
       background: rgba(15,23,42,.9);
-      border: 1px solid rgba(34,197,94,.4);
-      box-shadow: 0 0 60px rgba(34,197,94,.12), 0 20px 60px rgba(0,0,0,.5);
-      transform: translateX(0);
+      border: 2px solid rgba(34,197,94,.6);
+      box-shadow: 0 0 40px rgba(34,197,94,.2), 0 0 0 1px rgba(34,197,94,.1), 0 20px 60px rgba(0,0,0,.5);
+      transform: translateY(0);
     }
-    .psq-split-left.out  { opacity: 1; transform: translateX(calc(-50% - 20px)); }
-    .psq-split-right.out { opacity: 1; transform: translateX(calc(50% + 20px)); }
+    .psq-split-left.out  { opacity: 1; transform: translateY(calc(-50% - 20px)); }
+    .psq-split-right.out { opacity: 1; transform: translateY(calc(50%  + 20px)); }
 
     .psq-split-label {
       font-size: .7rem; font-weight: 700; letter-spacing: 2px;
@@ -400,9 +405,7 @@
     .psq-split-right .psq-split-line { color: #86efac; }
 
     @media (max-width: 768px) {
-      .psq-stage { min-height: 520px; flex-direction: column; }
-      .psq-split-left.out  { transform: translateX(0) translateY(calc(-50% - 12px)); }
-      .psq-split-right.out { transform: translateX(0) translateY(calc(50%  + 12px)); }
+      .psq-stage { min-height: 600px; }
       .psq-split-card { width: calc(100vw - 48px); }
       .psq-flip-wrap  { width: calc(100vw - 48px); }
     }
@@ -1582,24 +1585,23 @@
         // 4 — split
         await wait(650);
 
-        // sync card min-height to split cards
+        // measure card and set stage height for vertical split
         const h = card.getBoundingClientRect().height;
         splitLeft.style.minHeight  = h + 'px';
         splitRight.style.minHeight = h + 'px';
+        // stage needs room for both cards + gap
+        stage.style.minHeight = (h * 2 + 56) + 'px';
 
         // fade flip card out
         flipWrap.classList.add('hide');
 
-        // slide split cards out
+        // slide split cards out vertically
         await wait(80);
         splitLeft.style.opacity  = '1';
         splitRight.style.opacity = '1';
         await wait(30);
         splitLeft.classList.add('out');
         splitRight.classList.add('out');
-
-        // update stage height to fit both cards stacked on mobile
-        stage.style.minHeight = '';
       }
 
       // trigger on scroll into view (once)
