@@ -348,16 +348,43 @@
 
     .psq-cursor { display: none; }
 
-    .psq-strike {
-      position: absolute;
-      left: 0; top: 50%;
-      height: 2px;
-      background: rgba(239,68,68,.7);
-      width: 0;
-      transition: width .45s ease;
-      border-radius: 1px;
+    .psq-line {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+      margin-bottom: 20px;
     }
-    .psq-strike.done { width: 100%; }
+    .psq-sub {
+      font-size: .78rem;
+      font-weight: 400;
+      opacity: .45;
+      line-height: 1.4;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .psq-front .psq-sub { color: #fca5a5; }
+    .psq-back  .psq-sub { color: #86efac; }
+
+    .psq-split-line {
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .psq-split-title {
+      font-size: clamp(.9rem, 2vw, 1rem);
+      font-weight: 700;
+    }
+    .psq-split-sub {
+      font-size: .78rem; font-weight: 400; opacity: .5;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* strike via text-decoration — funciona em multi-linha */
+    .psq-line.struck .psq-text {
+      text-decoration: line-through;
+      text-decoration-color: rgba(239,68,68,.75);
+      text-decoration-thickness: 2px;
+      opacity: .55;
+      transition: opacity .3s ease;
+    }
+    .psq-strike { display: none; }
 
     /* split cards */
     .psq-split-card {
@@ -1484,18 +1511,16 @@
     // ── PROBLEM / SOLUTION ANIMATION ──
     (function() {
       const PROBLEMS = [
-        "Investe em anúncio e não tem resultado",
-        "Não sabe o que está errando",
-        "Gasta dinheiro sem retorno",
-        "Depende de agências caras",
-        "Tentativa e erro sem método",
+        { title: "Anúncio rodando, dinheiro sumindo",   sub: "Você investe mas não vê retorno nenhum" },
+        { title: "Não sabe o que está errando",          sub: "Cada ajuste parece um tiro no escuro" },
+        { title: "Gasta com agência e não vê resultado", sub: "Paga caro e fica sem controle nenhum" },
+        { title: "Sem método, só tentativa e erro",      sub: "Cada campanha começa do zero" },
       ];
       const SOLUTIONS = [
-        "Campanhas que convertem de verdade",
-        "Análise clara de cada métrica",
-        "ROI médio de 4x no investimento",
-        "Independência total no digital",
-        "Método comprovado em 60 dias",
+        { title: "Campanhas que convertem de verdade",  sub: "Estrutura validada com dados reais" },
+        { title: "Você entende cada número do painel",  sub: "Sabe exatamente o que ajustar e por quê" },
+        { title: "ROI médio de 4x no investimento",     sub: "Independência total — sem depender de ninguém" },
+        { title: "Método provado em 60 dias",           sub: "Do zero ao primeiro resultado com clareza" },
       ];
 
       const stage       = document.getElementById('psqStage');
@@ -1511,18 +1536,18 @@
       if (!stage) return;
 
       // build front lines
-      PROBLEMS.forEach(() => {
+      PROBLEMS.forEach(p => {
         const div = document.createElement('div');
         div.className = 'psq-line';
-        div.innerHTML = '<span class="psq-text"></span><span class="psq-cursor active"></span><span class="psq-strike"></span>';
+        div.innerHTML = `<span class="psq-text"></span><span class="psq-sub">${p.sub}</span>`;
         frontLines.appendChild(div);
       });
 
       // build back lines
-      SOLUTIONS.forEach(() => {
+      SOLUTIONS.forEach(s => {
         const div = document.createElement('div');
         div.className = 'psq-line';
-        div.innerHTML = '<span class="psq-text"></span><span class="psq-cursor active"></span>';
+        div.innerHTML = `<span class="psq-text"></span><span class="psq-sub">${s.sub}</span>`;
         backLines.appendChild(div);
       });
 
@@ -1530,39 +1555,33 @@
       PROBLEMS.forEach(p => {
         const d = document.createElement('div');
         d.className = 'psq-split-line';
-        d.textContent = p;
+        d.innerHTML = `<span class="psq-split-title">${p.title}</span><span class="psq-split-sub">${p.sub}</span>`;
         splitLL.appendChild(d);
       });
       SOLUTIONS.forEach(s => {
         const d = document.createElement('div');
         d.className = 'psq-split-line';
-        d.textContent = s;
+        d.innerHTML = `<span class="psq-split-title">${s.title}</span><span class="psq-split-sub">${s.sub}</span>`;
         splitRL.appendChild(d);
       });
 
       function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-      function typeText(lineEl, text, speed = 38) {
+      function typeText(lineEl, text, speed = 32) {
         return new Promise(resolve => {
-          const span   = lineEl.querySelector('.psq-text');
-          const cursor = lineEl.querySelector('.psq-cursor');
+          const span = lineEl.querySelector('.psq-text');
           let i = 0;
           const iv = setInterval(() => {
             span.textContent += text[i++];
-            if (i >= text.length) {
-              clearInterval(iv);
-              if (cursor) cursor.classList.remove('active');
-              resolve();
-            }
+            if (i >= text.length) { clearInterval(iv); resolve(); }
           }, speed);
         });
       }
 
       function strike(lineEl) {
         return new Promise(resolve => {
-          const s = lineEl.querySelector('.psq-strike');
-          s.classList.add('done');
-          setTimeout(resolve, 480);
+          lineEl.classList.add('struck');
+          setTimeout(resolve, 350);
         });
       }
 
@@ -1575,7 +1594,7 @@
 
         // 1 — type + strike problems
         for (let i = 0; i < PROBLEMS.length; i++) {
-          await typeText(fLines[i], PROBLEMS[i]);
+          await typeText(fLines[i], PROBLEMS[i].title);
           await wait(180);
           await strike(fLines[i]);
           await wait(120);
@@ -1591,7 +1610,7 @@
 
         // 3 — type solutions
         for (let i = 0; i < SOLUTIONS.length; i++) {
-          await typeText(bLines[i], SOLUTIONS[i]);
+          await typeText(bLines[i], SOLUTIONS[i].title);
           await wait(200);
         }
 
