@@ -507,7 +507,91 @@
     }
     .fl-btn:hover { border-color: rgba(96,165,250,.4); color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,.5); }
 
-    /* ── RESPONSIVE ── */
+    /* ── MENTOR SECTION ── */
+    .mentor { padding: 100px 0; }
+    .mentor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .mentor-photo-wrap {
+      position: relative;
+    }
+    .mentor-photo {
+      width: 100%;
+      aspect-ratio: 4/5;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(37,99,235,.15), rgba(129,140,248,.1));
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+    .mentor-photo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .mentor-photo-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; color: var(--muted); font-size: .85rem;
+    }
+    .mentor-photo-placeholder svg { opacity: .3; }
+    .mentor-badge-float {
+      position: absolute;
+      bottom: -20px; right: -20px;
+      background: rgba(15,23,42,.95);
+      border: 1px solid rgba(96,165,250,.25);
+      border-radius: 16px;
+      padding: 16px 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 40px rgba(0,0,0,.5);
+    }
+    .mentor-badge-float .mbf-num {
+      font-size: 1.6rem; font-weight: 900; letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .mentor-badge-float .mbf-label { font-size: .75rem; color: var(--muted); font-weight: 500; }
+
+    .mentor-content {}
+    .mentor-content .section-tag { margin-bottom: 16px; }
+    .mentor-content h2 {
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 800; letter-spacing: -1px; line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .mentor-content .mentor-age {
+      color: var(--accent); font-size: .9rem; font-weight: 600; margin-bottom: 24px;
+    }
+    .mentor-story { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+    .mentor-story p { font-size: .95rem; color: var(--muted); line-height: 1.8; }
+    .mentor-story p strong { color: var(--text); font-weight: 600; }
+    .mentor-story p.highlight-line {
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+      font-style: italic;
+      border-left: 3px solid var(--accent);
+      padding-left: 16px;
+    }
+    .mentor-jobs {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px;
+    }
+    .mentor-job-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 12px;
+      font-size: .8rem; color: var(--muted); font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .mentor-grid { grid-template-columns: 1fr; gap: 40px; }
+      .mentor-badge-float { bottom: -16px; right: 16px; }
+      .mentor { padding: 70px 0; }
+    }
     @media (max-width: 768px) {
       .b1, .b2, .b3, .b4, .b5, .b6 { grid-column: span 12; }
       .b1-inner { flex-direction: column; }
@@ -684,6 +768,69 @@
       </div>
     </div>
   </div>
+
+  <div class="glow-divider"></div>
+
+  <!-- MENTOR -->
+  <section class="mentor">
+    <div class="container">
+      <div class="mentor-grid">
+
+        <!-- FOTO -->
+        <div class="mentor-photo-wrap reveal">
+          <div class="mentor-photo">
+            <!-- Substitua o bloco abaixo pela tag <img> quando tiver a foto -->
+            <div class="mentor-photo-placeholder">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Foto do Douglas</span>
+            </div>
+          </div>
+          <div class="mentor-badge-float">
+            <div class="mbf-num">847+</div>
+            <div class="mbf-label">Alunos transformados</div>
+          </div>
+        </div>
+
+        <!-- CONTEÚDO -->
+        <div class="mentor-content reveal reveal-delay-2">
+          <div class="section-tag">Quem vai te ensinar</div>
+          <h2>Douglas Poiato</h2>
+          <div class="mentor-age">26 anos · Casado · Pai de família</div>
+
+          <div class="mentor-story">
+            <p>
+              Comecei a trabalhar com <strong>15 anos</strong> como aprendiz de RH. Depois virei office boy de farmácia, operador de produção, e por 4 anos fui <strong>motoboy</strong> depois que casei.
+            </p>
+            <p>
+              Tenho ensino médio incompleto — parei no último ano porque <strong>precisava trabalhar</strong>. Não tinha escolha.
+            </p>
+            <p>
+              Em um dos momentos mais difíceis da minha vida, <strong>eu e minha esposa ficamos desempregados ao mesmo tempo.</strong> Precisamos pedir ajuda a parentes até para comer. Foi humilhante e doloroso.
+            </p>
+            <p class="highlight-line">
+              "Hoje, graças a Deus e ao mercado digital, consigo retribuir cada uma dessas ajudas — e ajudar outras pessoas a nunca passarem pelo que passei."
+            </p>
+            <p>
+              Não vim de família rica, não tive faculdade, não tive padrinho. Aprendi tráfego pago na <strong>prática, errando, investindo do próprio bolso</strong> — e foi exatamente isso que me fez entender o que realmente funciona.
+            </p>
+          </div>
+
+          <div class="mentor-jobs">
+            <span class="mentor-job-tag">🛵 Motoboy por 4 anos</span>
+            <span class="mentor-job-tag">📦 Operador de produção</span>
+            <span class="mentor-job-tag">🚴 Office boy de farmácia</span>
+            <span class="mentor-job-tag">📋 Aprendiz de RH</span>
+            <span class="mentor-job-tag">💻 Hoje: Especialista em Tráfego</span>
+          </div>
+
+          <button class="btn-primary" onclick="document.getElementById('form').scrollIntoView({behavior:'smooth'})">
+            Quero aprender com o Douglas →
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
 
   <div class="glow-divider"></div>
 
