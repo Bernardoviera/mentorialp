@@ -357,10 +357,12 @@
     .psq-sub {
       font-size: .78rem;
       font-weight: 400;
-      opacity: .45;
+      opacity: 0;
       line-height: 1.4;
       font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: opacity .4s ease;
     }
+    .psq-sub.visible { opacity: .45; }
     .psq-front .psq-sub { color: #fca5a5; }
     .psq-back  .psq-sub { color: #86efac; }
 
@@ -1595,6 +1597,7 @@
         // 1 — type + strike problems
         for (let i = 0; i < PROBLEMS.length; i++) {
           await typeText(fLines[i], PROBLEMS[i].title);
+          fLines[i].querySelector('.psq-sub').classList.add('visible');
           await wait(180);
           await strike(fLines[i]);
           await wait(120);
@@ -1611,6 +1614,7 @@
         // 3 — type solutions
         for (let i = 0; i < SOLUTIONS.length; i++) {
           await typeText(bLines[i], SOLUTIONS[i].title);
+          bLines[i].querySelector('.psq-sub').classList.add('visible');
           await wait(200);
         }
 
