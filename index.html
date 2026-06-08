@@ -346,17 +346,7 @@
     .psq-front .psq-line { color: #fca5a5; }
     .psq-back  .psq-line { color: #86efac; }
 
-    .psq-cursor {
-      display: inline-block;
-      width: 2px; height: 1.1em;
-      background: currentColor;
-      margin-left: 2px;
-      vertical-align: middle;
-      animation: blink .7s step-end infinite;
-      opacity: 0;
-    }
-    .psq-cursor.active { opacity: 1; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .psq-cursor { display: none; }
 
     .psq-strike {
       position: absolute;
@@ -382,20 +372,34 @@
       z-index: 2;
       transition: transform .7s cubic-bezier(.34,1.3,.64,1), opacity .5s ease;
     }
+    /* os split cards precisam ser centrados via left:50% */
+    .psq-split-card {
+      left: 50%;
+      transform: translateX(-50%);
+    }
     .psq-split-left {
       background: rgba(15,23,42,.9);
       border: 2px solid rgba(239,68,68,.6);
       box-shadow: 0 0 40px rgba(239,68,68,.2), 0 0 0 1px rgba(239,68,68,.1), 0 20px 60px rgba(0,0,0,.5);
-      transform: translateY(0);
     }
     .psq-split-right {
       background: rgba(15,23,42,.9);
       border: 2px solid rgba(34,197,94,.6);
       box-shadow: 0 0 40px rgba(34,197,94,.2), 0 0 0 1px rgba(34,197,94,.1), 0 20px 60px rgba(0,0,0,.5);
-      transform: translateY(0);
     }
-    .psq-split-left.out  { opacity: 1; transform: translateY(calc(-50% - 20px)); }
-    .psq-split-right.out { opacity: 1; transform: translateY(calc(50%  + 20px)); }
+
+    /* desktop: lado a lado */
+    .psq-split-left.out  { opacity: 1; transform: translateX(calc(-100% - 20px)); }
+    .psq-split-right.out { opacity: 1; transform: translateX(20px); }
+
+    /* mobile: empilhado */
+    @media (max-width: 768px) {
+      .psq-stage { min-height: 600px; }
+      .psq-split-card { width: calc(100vw - 48px); }
+      .psq-flip-wrap  { width: calc(100vw - 48px); }
+      .psq-split-left.out  { transform: translateX(-50%) translateY(calc(-50% - 16px)); }
+      .psq-split-right.out { transform: translateX(-50%) translateY(calc(50%  + 16px)); }
+    }
 
     .psq-split-label {
       font-size: .7rem; font-weight: 700; letter-spacing: 2px;
@@ -415,12 +419,6 @@
     }
     .psq-split-left  .psq-split-line { color: #fca5a5; }
     .psq-split-right .psq-split-line { color: #86efac; }
-
-    @media (max-width: 768px) {
-      .psq-stage { min-height: 600px; }
-      .psq-split-card { width: calc(100vw - 48px); }
-      .psq-flip-wrap  { width: calc(100vw - 48px); }
-    }
 
     /* ── SECTIONS ── */
     section { position: relative; z-index: 2; }
@@ -1600,12 +1598,14 @@
         // 4 — split
         await wait(650);
 
-        // measure card and set stage height for vertical split
+        // measure card height and sync to split cards
         const h = card.getBoundingClientRect().height;
         splitLeft.style.minHeight  = h + 'px';
         splitRight.style.minHeight = h + 'px';
-        // stage needs room for both cards + gap
-        stage.style.minHeight = (h * 2 + 56) + 'px';
+        // desktop: side by side → stage height = card height
+        // mobile: stacked → stage height = 2× card height + gap
+        const isMobile = window.innerWidth <= 768;
+        stage.style.minHeight = isMobile ? (h * 2 + 56) + 'px' : (h + 40) + 'px';
 
         // fade flip card out
         flipWrap.classList.add('hide');
