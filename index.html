@@ -123,24 +123,32 @@
       font-size: clamp(2.4rem, 6vw, 4.2rem);
       font-weight: 900;
       letter-spacing: -2px;
-      line-height: 1.1;
+      line-height: 1.15;
       margin-bottom: 24px;
       animation: fadeInUp .8s .1s ease both;
     }
-    .hero h1 .highlight {
+
+    /* ── ANIMATED WORD CYCLE ── */
+    .hero-title-static { display: block; }
+    .hero-title-cycling {
+      display: block;
+      position: relative;
+      height: 1.15em;
+      overflow: hidden;
+      margin: 4px 0;
+    }
+    .cycling-word {
+      position: absolute;
+      left: 0; right: 0;
       background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      position: relative;
+      font-weight: 900;
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+      will-change: transform, opacity;
     }
-    .hero h1 .highlight::after {
-      content: '';
-      position: absolute; bottom: -4px; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      border-radius: 2px;
-      animation: lineGrow 1s 1s ease both;
-      transform-origin: left;
-    }
-    @keyframes lineGrow { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+    .cycling-word.state-above  { transform: translateY(-110%); opacity: 0; }
+    .cycling-word.state-active { transform: translateY(0);     opacity: 1; }
+    .cycling-word.state-below  { transform: translateY(110%);  opacity: 0; }
 
     .hero p {
       font-size: clamp(1rem, 2vw, 1.2rem);
@@ -669,9 +677,15 @@
         </div>
 
         <h1>
-          Aprenda Tráfego Pago<br>
-          do <span class="highlight">Zero ao Resultado</span><br>
-          em 60 dias
+          <span class="hero-title-static">Aprenda Tráfego Pago e</span>
+          <span class="hero-title-cycling" id="cyclingTitle" aria-live="polite">
+            <span class="cycling-word state-active">mude sua vida</span>
+            <span class="cycling-word state-below">gere resultados reais</span>
+            <span class="cycling-word state-below">conquiste clientes</span>
+            <span class="cycling-word state-below">escale seu negócio</span>
+            <span class="cycling-word state-below">tenha liberdade</span>
+          </span>
+          <span class="hero-title-static" style="font-size: clamp(1.6rem, 4vw, 2.8rem); font-weight: 700; color: var(--muted); letter-spacing: -1px;">em até 60 dias — do zero.</span>
         </h1>
 
         <p>
@@ -1224,6 +1238,35 @@
         this.value = v;
       });
     }
+
+    // ── CYCLING WORDS ──
+    (function() {
+      const container = document.getElementById('cyclingTitle');
+      if (!container) return;
+      const words = Array.from(container.querySelectorAll('.cycling-word'));
+      let current = 0;
+
+      function next() {
+        const prev = current;
+        current = (current + 1) % words.length;
+
+        // saída: ativo → acima
+        words[prev].classList.remove('state-active');
+        words[prev].classList.add('state-above');
+
+        // entrada: abaixo → ativo
+        words[current].classList.remove('state-below', 'state-above');
+        words[current].classList.add('state-active');
+
+        // após transição, empurra o "acima" para baixo (fila)
+        setTimeout(() => {
+          words[prev].classList.remove('state-above');
+          words[prev].classList.add('state-below');
+        }, 500);
+      }
+
+      setInterval(next, 2400);
+    })();
 
     // ── FORM SUBMIT ──
     function handleSubmit(e) {
