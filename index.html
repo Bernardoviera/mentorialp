@@ -238,6 +238,175 @@
     .proof-item svg { color: var(--accent); flex-shrink: 0; }
     @keyframes scrollTrack { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
+    /* ── PROBLEM / SOLUTION ANIMATION ── */
+    .psq-section { padding: 100px 0; }
+
+    .psq-stage {
+      position: relative;
+      min-height: 440px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* flip card */
+    .psq-flip-wrap {
+      perspective: 1400px;
+      width: 560px;
+      max-width: calc(100vw - 48px);
+      position: absolute;
+      z-index: 3;
+      transition: opacity .5s ease, transform .5s ease;
+    }
+    .psq-flip-wrap.hide {
+      opacity: 0;
+      transform: scale(.92);
+      pointer-events: none;
+    }
+
+    .psq-card {
+      width: 100%;
+      min-height: 380px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform .85s cubic-bezier(.4,0,.2,1);
+    }
+    .psq-card.flipped { transform: rotateY(180deg); }
+
+    .psq-face {
+      position: absolute; inset: 0;
+      border-radius: 24px;
+      padding: 40px 40px 44px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .psq-front {
+      background: rgba(15,23,42,.85);
+      border: 1px solid rgba(239,68,68,.35);
+      box-shadow: 0 0 60px rgba(239,68,68,.08), 0 20px 60px rgba(0,0,0,.4);
+    }
+    .psq-back {
+      background: rgba(15,23,42,.85);
+      border: 1px solid rgba(34,197,94,.35);
+      box-shadow: 0 0 60px rgba(34,197,94,.08), 0 20px 60px rgba(0,0,0,.4);
+      transform: rotateY(180deg);
+    }
+
+    .psq-face-label {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .psq-front .psq-face-label { color: rgba(239,68,68,.8); }
+    .psq-back  .psq-face-label { color: rgba(34,197,94,.8); }
+
+    .psq-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+    }
+    .psq-front .psq-dot { background: rgba(239,68,68,.8); animation: pulse 2s infinite; }
+    .psq-back  .psq-dot { background: rgba(34,197,94,.8);  animation: pulse 2s infinite; }
+
+    /* each line */
+    .psq-line {
+      position: relative;
+      font-size: clamp(.9rem, 2vw, 1.05rem);
+      font-weight: 600;
+      min-height: 1.6em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+    }
+    .psq-front .psq-line { color: #fca5a5; }
+    .psq-back  .psq-line { color: #86efac; }
+
+    .psq-cursor {
+      display: inline-block;
+      width: 2px; height: 1.1em;
+      background: currentColor;
+      margin-left: 2px;
+      vertical-align: middle;
+      animation: blink .7s step-end infinite;
+      opacity: 0;
+    }
+    .psq-cursor.active { opacity: 1; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .psq-strike {
+      position: absolute;
+      left: 0; top: 50%;
+      height: 2px;
+      background: rgba(239,68,68,.7);
+      width: 0;
+      transition: width .45s ease;
+      border-radius: 1px;
+    }
+    .psq-strike.done { width: 100%; }
+
+    /* split cards */
+    .psq-split-card {
+      position: absolute;
+      width: 560px;
+      max-width: calc(100vw - 48px);
+      min-height: 380px;
+      border-radius: 24px;
+      padding: 40px 40px 44px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      z-index: 2;
+      transition: transform .7s cubic-bezier(.34,1.3,.64,1), opacity .5s ease;
+    }
+    .psq-split-left {
+      background: rgba(15,23,42,.9);
+      border: 1px solid rgba(239,68,68,.4);
+      box-shadow: 0 0 60px rgba(239,68,68,.12), 0 20px 60px rgba(0,0,0,.5);
+      transform: translateX(0);
+    }
+    .psq-split-right {
+      background: rgba(15,23,42,.9);
+      border: 1px solid rgba(34,197,94,.4);
+      box-shadow: 0 0 60px rgba(34,197,94,.12), 0 20px 60px rgba(0,0,0,.5);
+      transform: translateX(0);
+    }
+    .psq-split-left.out  { opacity: 1; transform: translateX(calc(-50% - 20px)); }
+    .psq-split-right.out { opacity: 1; transform: translateX(calc(50% + 20px)); }
+
+    .psq-split-label {
+      font-size: .7rem; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .psq-split-left  .psq-split-label { color: rgba(239,68,68,.8); }
+    .psq-split-right .psq-split-label { color: rgba(34,197,94,.8); }
+    .psq-split-left  .psq-dot { background: rgba(239,68,68,.8); }
+    .psq-split-right .psq-dot { background: rgba(34,197,94,.8); }
+
+    .psq-split-line {
+      font-size: clamp(.9rem, 2vw, 1.05rem);
+      font-weight: 600;
+      min-height: 1.6em;
+      margin-bottom: 16px;
+    }
+    .psq-split-left  .psq-split-line { color: #fca5a5; }
+    .psq-split-right .psq-split-line { color: #86efac; }
+
+    @media (max-width: 768px) {
+      .psq-stage { min-height: 520px; flex-direction: column; }
+      .psq-split-left.out  { transform: translateX(0) translateY(calc(-50% - 12px)); }
+      .psq-split-right.out { transform: translateX(0) translateY(calc(50%  + 12px)); }
+      .psq-split-card { width: calc(100vw - 48px); }
+      .psq-flip-wrap  { width: calc(100vw - 48px); }
+    }
+
     /* ── SECTIONS ── */
     section { position: relative; z-index: 2; }
 
@@ -785,6 +954,66 @@
 
   <div class="glow-divider"></div>
 
+  <!-- PROBLEM / SOLUTION -->
+  <section class="psq-section" id="psq">
+    <div class="container">
+      <div class="section-header center reveal">
+        <div class="section-tag">A virada de chave</div>
+        <h2 class="section-title">Você se identifica<br>com algum desses problemas?</h2>
+        <p class="section-sub">Veja o que muda quando você aprende o método certo.</p>
+      </div>
+
+      <div class="psq-stage" id="psqStage">
+
+        <!-- FLIP CARD -->
+        <div class="psq-flip-wrap" id="psqFlipWrap">
+          <div class="psq-card" id="psqCard">
+
+            <!-- FRONT: Problemas -->
+            <div class="psq-face psq-front">
+              <div class="psq-face-label">
+                <span class="psq-dot"></span>
+                O que você está vivendo agora
+              </div>
+              <div id="psqFrontLines"></div>
+            </div>
+
+            <!-- BACK: Soluções -->
+            <div class="psq-face psq-back">
+              <div class="psq-face-label">
+                <span class="psq-dot"></span>
+                O que você vai conquistar
+              </div>
+              <div id="psqBackLines"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SPLIT ESQUERDO (problemas) -->
+        <div class="psq-split-card psq-split-left" id="psqSplitLeft">
+          <div class="psq-split-label">
+            <span class="psq-dot"></span>
+            Antes
+          </div>
+          <div id="psqSplitLeftLines"></div>
+        </div>
+
+        <!-- SPLIT DIREITO (soluções) -->
+        <div class="psq-split-card psq-split-right" id="psqSplitRight">
+          <div class="psq-split-label">
+            <span class="psq-dot"></span>
+            Depois
+          </div>
+          <div id="psqSplitRightLines"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-divider"></div>
+
   <!-- MENTOR -->
   <section class="mentor">
     <div class="container">
@@ -1238,6 +1467,152 @@
         this.value = v;
       });
     }
+
+    // ── PROBLEM / SOLUTION ANIMATION ──
+    (function() {
+      const PROBLEMS = [
+        "Investe em anúncio e não tem resultado",
+        "Não sabe o que está errando",
+        "Gasta dinheiro sem retorno",
+        "Depende de agências caras",
+        "Tentativa e erro sem método",
+      ];
+      const SOLUTIONS = [
+        "Campanhas que convertem de verdade",
+        "Análise clara de cada métrica",
+        "ROI médio de 4x no investimento",
+        "Independência total no digital",
+        "Método comprovado em 60 dias",
+      ];
+
+      const stage       = document.getElementById('psqStage');
+      const flipWrap    = document.getElementById('psqFlipWrap');
+      const card        = document.getElementById('psqCard');
+      const frontLines  = document.getElementById('psqFrontLines');
+      const backLines   = document.getElementById('psqBackLines');
+      const splitLeft   = document.getElementById('psqSplitLeft');
+      const splitRight  = document.getElementById('psqSplitRight');
+      const splitLL     = document.getElementById('psqSplitLeftLines');
+      const splitRL     = document.getElementById('psqSplitRightLines');
+
+      if (!stage) return;
+
+      // build front lines
+      PROBLEMS.forEach(() => {
+        const div = document.createElement('div');
+        div.className = 'psq-line';
+        div.innerHTML = '<span class="psq-text"></span><span class="psq-cursor active"></span><span class="psq-strike"></span>';
+        frontLines.appendChild(div);
+      });
+
+      // build back lines
+      SOLUTIONS.forEach(() => {
+        const div = document.createElement('div');
+        div.className = 'psq-line';
+        div.innerHTML = '<span class="psq-text"></span><span class="psq-cursor active"></span>';
+        backLines.appendChild(div);
+      });
+
+      // build split lines
+      PROBLEMS.forEach(p => {
+        const d = document.createElement('div');
+        d.className = 'psq-split-line';
+        d.textContent = p;
+        splitLL.appendChild(d);
+      });
+      SOLUTIONS.forEach(s => {
+        const d = document.createElement('div');
+        d.className = 'psq-split-line';
+        d.textContent = s;
+        splitRL.appendChild(d);
+      });
+
+      function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+      function typeText(lineEl, text, speed = 38) {
+        return new Promise(resolve => {
+          const span   = lineEl.querySelector('.psq-text');
+          const cursor = lineEl.querySelector('.psq-cursor');
+          let i = 0;
+          const iv = setInterval(() => {
+            span.textContent += text[i++];
+            if (i >= text.length) {
+              clearInterval(iv);
+              if (cursor) cursor.classList.remove('active');
+              resolve();
+            }
+          }, speed);
+        });
+      }
+
+      function strike(lineEl) {
+        return new Promise(resolve => {
+          const s = lineEl.querySelector('.psq-strike');
+          s.classList.add('done');
+          setTimeout(resolve, 480);
+        });
+      }
+
+      async function run() {
+        const fLines = frontLines.querySelectorAll('.psq-line');
+        const bLines = backLines.querySelectorAll('.psq-line');
+
+        // sync card height to content once populated
+        await wait(100);
+
+        // 1 — type + strike problems
+        for (let i = 0; i < PROBLEMS.length; i++) {
+          await typeText(fLines[i], PROBLEMS[i]);
+          await wait(180);
+          await strike(fLines[i]);
+          await wait(120);
+        }
+
+        // 2 — flip
+        await wait(500);
+        card.classList.add('flipped');
+        await wait(950);
+
+        // 3 — type solutions
+        for (let i = 0; i < SOLUTIONS.length; i++) {
+          await typeText(bLines[i], SOLUTIONS[i]);
+          await wait(200);
+        }
+
+        // 4 — split
+        await wait(650);
+
+        // sync card min-height to split cards
+        const h = card.getBoundingClientRect().height;
+        splitLeft.style.minHeight  = h + 'px';
+        splitRight.style.minHeight = h + 'px';
+
+        // fade flip card out
+        flipWrap.classList.add('hide');
+
+        // slide split cards out
+        await wait(80);
+        splitLeft.style.opacity  = '1';
+        splitRight.style.opacity = '1';
+        await wait(30);
+        splitLeft.classList.add('out');
+        splitRight.classList.add('out');
+
+        // update stage height to fit both cards stacked on mobile
+        stage.style.minHeight = '';
+      }
+
+      // trigger on scroll into view (once)
+      const psqObs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            psqObs.unobserve(e.target);
+            run();
+          }
+        });
+      }, { threshold: 0.35 });
+      psqObs.observe(stage);
+    })();
 
     // ── CYCLING WORDS ──
     (function() {
