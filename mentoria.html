@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentoria de Tráfego Pago | Do Zero ao Resultado</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #040810;
+      --bg2: #080f1e;
+      --primary: #2563eb;
+      --primary-glow: #3b82f6;
+      --accent: #60a5fa;
+      --accent2: #818cf8;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --card-bg: rgba(15, 23, 42, 0.6);
+      --glass: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Syne apenas nos cards de problema/solução */
+    .psq-face, .psq-split-card,
+    .psq-line, .psq-split-line,
+    .psq-face-label, .psq-split-label {
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* overflow-x no wrapper, não no body (evita quebrar IntersectionObserver no mobile) */
+    .page-wrapper { overflow-x: hidden; }
+
+    /* ── CANVAS PARTICLES ── */
+    #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+      opacity: .4;
+    }
+
+    /* ── GRADIENT ORBS ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      animation: orbFloat 12s ease-in-out infinite alternate;
+    }
+    .orb1 { width: 600px; height: 600px; top: -150px; left: -150px; background: radial-gradient(circle, rgba(37,99,235,.35) 0%, transparent 70%); }
+    .orb2 { width: 500px; height: 500px; top: 40%; right: -100px; background: radial-gradient(circle, rgba(129,140,248,.25) 0%, transparent 70%); animation-delay: -4s; }
+    .orb3 { width: 400px; height: 400px; bottom: 10%; left: 20%; background: radial-gradient(circle, rgba(96,165,250,.2) 0%, transparent 70%); animation-delay: -8s; }
+
+    @keyframes orbFloat {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(40px, 60px) scale(1.1); }
+    }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 2; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 16px 0;
+      transition: all .4s ease;
+    }
+    nav.scrolled {
+      background: rgba(4,8,16,.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 30px rgba(0,0,0,.4);
+    }
+    .nav-inner { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; }
+    .logo span { color: var(--accent); }
+    .nav-cta {
+      background: var(--primary);
+      color: #fff;
+      border: none; cursor: pointer;
+      padding: 10px 22px; border-radius: 8px;
+      font-family: inherit; font-weight: 600; font-size: .9rem;
+      transition: all .3s ease;
+      box-shadow: 0 0 20px rgba(37,99,235,.4);
+    }
+    .nav-cta:hover { background: var(--primary-glow); box-shadow: 0 0 30px rgba(59,130,246,.6); transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 120px 0 80px;
+      position: relative;
+    }
+    .hero-content { max-width: 760px; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(37,99,235,.15);
+      border: 1px solid rgba(59,130,246,.3);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: .8rem; font-weight: 600; color: var(--accent);
+      margin-bottom: 28px;
+      animation: fadeInUp .8s ease both;
+    }
+    .badge-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1.15;
+      margin-bottom: 24px;
+      animation: fadeInUp .8s .1s ease both;
+    }
+
+    /* ── ANIMATED WORD CYCLE ── */
+    .hero-title-static { display: block; }
+    .hero-title-cycling {
+      display: block;
+      position: relative;
+      height: 1.15em;
+      overflow: hidden;
+      margin: 4px 0;
+    }
+    .cycling-word {
+      position: absolute;
+      left: 0; right: 0;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      font-weight: 900;
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+      will-change: transform, opacity;
+    }
+    .cycling-word.state-above  { transform: translateY(-110%); opacity: 0; }
+    .cycling-word.state-active { transform: translateY(0);     opacity: 1; }
+    .cycling-word.state-below  { transform: translateY(110%);  opacity: 0; }
+
+    .hero p {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--muted);
+      max-width: 560px;
+      margin-bottom: 40px;
+      animation: fadeInUp .8s .2s ease both;
+    }
+
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; animation: fadeInUp .8s .3s ease both; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, var(--primary), #1d4ed8);
+      color: #fff; border: none; cursor: pointer;
+      padding: 16px 32px; border-radius: 12px;
+      font-family: inherit; font-weight: 700; font-size: 1rem;
+      transition: all .3s ease;
+      box-shadow: 0 0 40px rgba(37,99,235,.5), 0 4px 15px rgba(0,0,0,.3);
+      position: relative; overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.15), transparent);
+      opacity: 0; transition: opacity .3s;
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 60px rgba(59,130,246,.7), 0 8px 25px rgba(0,0,0,.4); }
+    .btn-primary:hover::before { opacity: 1; }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      color: var(--text); cursor: pointer;
+      padding: 16px 28px; border-radius: 12px;
+      font-family: inherit; font-weight: 600; font-size: 1rem;
+      transition: all .3s ease; backdrop-filter: blur(10px);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); transform: translateY(-2px); }
+
+    .hero-stats {
+      display: flex; gap: 40px; flex-wrap: wrap;
+      margin-top: 60px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      animation: fadeInUp .8s .4s ease both;
+    }
+    .stat-item { text-align: left; }
+    .stat-num { font-size: 2rem; font-weight: 900; letter-spacing: -1px; color: var(--text); }
+    .stat-num span { color: var(--accent); }
+    .stat-label { font-size: .8rem; color: var(--muted); font-weight: 500; margin-top: 2px; }
+
+    /* ── SCROLL INDICATOR ── */
+    .scroll-hint {
+      position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--muted); font-size: .75rem; z-index: 2;
+      animation: fadeIn 1s 1.5s ease both;
+    }
+    .scroll-line {
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+    @keyframes scrollLine { 0%{transform:scaleY(0);transform-origin:top} 50%{transform:scaleY(1)} 100%{transform:scaleY(0);transform-origin:bottom} }
+
+    /* ── SOCIAL PROOF BAR ── */
+    .proof-bar {
+      background: rgba(15,23,42,.5);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      padding: 20px 0;
+      overflow: hidden;
+    }
+    .proof-track {
+      display: flex; gap: 60px; align-items: center;
+      animation: scrollTrack 20s linear infinite;
+      white-space: nowrap;
+      width: max-content;
+    }
+    .proof-item {
+      display: flex; align-items: center; gap: 10px;
+      color: var(--muted); font-size: .85rem; font-weight: 500;
+    }
+    .proof-item svg { color: var(--accent); flex-shrink: 0; }
+    @keyframes scrollTrack { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ── PROBLEM / SOLUTION ANIMATION ── */
+    .psq-section { padding: 100px 0; }
+
+    .psq-stage {
+      position: relative;
+      min-height: 440px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* flip card */
+    .psq-flip-wrap {
+      perspective: 1400px;
+      width: 380px;
+      max-width: calc(100vw - 48px);
+      position: absolute;
+      z-index: 3;
+      transition: opacity .5s ease, transform .5s ease;
+    }
+    .psq-flip-wrap.hide {
+      opacity: 0;
+      transform: scale(.92);
+      pointer-events: none;
+    }
+
+    .psq-card {
+      width: 100%;
+      min-height: 520px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform .85s cubic-bezier(.4,0,.2,1);
+    }
+    .psq-card.flipped { transform: rotateY(180deg); }
+
+    .psq-face {
+      position: absolute; inset: 0;
+      border-radius: 24px;
+      padding: 36px 32px 40px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      /* força layer de GPU separado — corrige bug iOS */
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      transition: opacity .1s ease;
+    }
+    /* garante que o verso não vaza no mobile */
+    .psq-back {
+      -webkit-transform: rotateY(180deg) translateZ(1px);
+      transform: rotateY(180deg) translateZ(1px);
+    }
+    /* estado de visibilidade controlado por JS no meio do flip */
+    .psq-face.face-hidden { opacity: 0 !important; }
+    .psq-front {
+      background: rgba(15,23,42,.85);
+      border: 2px solid rgba(239,68,68,.6);
+      box-shadow: 0 0 40px rgba(239,68,68,.18), 0 0 0 1px rgba(239,68,68,.1), 0 20px 60px rgba(0,0,0,.4);
+    }
+    .psq-back {
+      background: rgba(15,23,42,.85);
+      border: 2px solid rgba(34,197,94,.6);
+      box-shadow: 0 0 40px rgba(34,197,94,.18), 0 0 0 1px rgba(34,197,94,.1), 0 20px 60px rgba(0,0,0,.4);
+      transform: rotateY(180deg);
+    }
+
+    .psq-face-label {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .psq-front .psq-face-label { color: rgba(239,68,68,.8); }
+    .psq-back  .psq-face-label { color: rgba(34,197,94,.8); }
+
+    .psq-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+    }
+    .psq-front .psq-dot { background: rgba(239,68,68,.8); animation: pulse 2s infinite; }
+    .psq-back  .psq-dot { background: rgba(34,197,94,.8);  animation: pulse 2s infinite; }
+
+    /* each line */
+    .psq-line {
+      position: relative;
+      font-size: clamp(.9rem, 2vw, 1.05rem);
+      font-weight: 600;
+      min-height: 1.6em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+    }
+    .psq-front .psq-line { color: #fca5a5; }
+    .psq-back  .psq-line { color: #86efac; }
+
+    .psq-cursor { display: none; }
+
+    .psq-line {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+      margin-bottom: 20px;
+    }
+    .psq-sub {
+      font-size: .78rem;
+      font-weight: 400;
+      opacity: 0;
+      line-height: 1.4;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: opacity .4s ease;
+    }
+    .psq-sub.visible { opacity: .45; }
+    .psq-front .psq-sub { color: #fca5a5; }
+    .psq-back  .psq-sub { color: #86efac; }
+
+    .psq-split-line {
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .psq-split-title {
+      font-size: clamp(.9rem, 2vw, 1rem);
+      font-weight: 700;
+    }
+    .psq-split-sub {
+      font-size: .78rem; font-weight: 400; opacity: .5;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* strike via text-decoration — funciona em multi-linha */
+    .psq-line.struck .psq-text {
+      text-decoration: line-through;
+      text-decoration-color: rgba(239,68,68,.75);
+      text-decoration-thickness: 2px;
+      opacity: .55;
+      transition: opacity .3s ease;
+    }
+    .psq-strike { display: none; }
+
+    /* split cards */
+    .psq-split-card {
+      position: absolute;
+      width: 380px;
+      max-width: calc(100vw - 48px);
+      border-radius: 24px;
+      padding: 36px 32px 40px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      z-index: 2;
+      transition: transform .7s cubic-bezier(.34,1.3,.64,1), opacity .5s ease;
+    }
+    /* os split cards precisam ser centrados via left:50% */
+    .psq-split-card {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .psq-split-left {
+      background: rgba(15,23,42,.9);
+      border: 2px solid rgba(239,68,68,.6);
+      box-shadow: 0 0 40px rgba(239,68,68,.2), 0 0 0 1px rgba(239,68,68,.1), 0 20px 60px rgba(0,0,0,.5);
+    }
+    .psq-split-right {
+      background: rgba(15,23,42,.9);
+      border: 2px solid rgba(34,197,94,.6);
+      box-shadow: 0 0 40px rgba(34,197,94,.2), 0 0 0 1px rgba(34,197,94,.1), 0 20px 60px rgba(0,0,0,.5);
+    }
+
+    /* desktop: lado a lado */
+    .psq-split-left.out  { opacity: 1; transform: translateX(calc(-100% - 20px)); }
+    .psq-split-right.out { opacity: 1; transform: translateX(20px); }
+
+    /* mobile: empilhado */
+    @media (max-width: 768px) {
+      .psq-stage { min-height: 600px; }
+      .psq-split-card { width: calc(100vw - 48px); }
+      .psq-flip-wrap  { width: calc(100vw - 48px); }
+      .psq-split-left.out  { transform: translateX(-50%) translateY(calc(-50% - 16px)); }
+      .psq-split-right.out { transform: translateX(-50%) translateY(calc(50%  + 16px)); }
+    }
+
+    .psq-split-label {
+      font-size: .7rem; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .psq-split-left  .psq-split-label { color: rgba(239,68,68,.8); }
+    .psq-split-right .psq-split-label { color: rgba(34,197,94,.8); }
+    .psq-split-left  .psq-dot { background: rgba(239,68,68,.8); }
+    .psq-split-right .psq-dot { background: rgba(34,197,94,.8); }
+
+    .psq-split-line {
+      font-size: clamp(.9rem, 2vw, 1.05rem);
+      font-weight: 600;
+      min-height: 1.6em;
+      margin-bottom: 16px;
+    }
+    .psq-split-left  .psq-split-line { color: #fca5a5; }
+    .psq-split-right .psq-split-line { color: #86efac; }
+
+    /* ── SECTIONS ── */
+    section { position: relative; z-index: 2; }
+
+    .section-tag {
+      display: inline-block;
+      background: rgba(37,99,235,.1);
+      border: 1px solid rgba(59,130,246,.2);
+      color: var(--accent);
+      font-size: .75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      padding: 6px 14px; border-radius: 6px;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; letter-spacing: -1.5px; line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .section-sub { font-size: 1.05rem; color: var(--muted); max-width: 560px; }
+    .section-header { margin-bottom: 60px; }
+    .section-header.center { text-align: center; }
+    .section-header.center .section-sub { margin: 0 auto; }
+
+    /* ── FOR WHO ── */
+    .for-who { padding: 100px 0; }
+    .for-who-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+
+    .fw-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      backdrop-filter: blur(20px);
+      transition: all .4s ease;
+      position: relative; overflow: hidden;
+    }
+    .fw-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(96,165,250,.4), transparent);
+      opacity: 0; transition: opacity .4s;
+    }
+    .fw-card:hover { border-color: rgba(96,165,250,.3); transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+    .fw-card:hover::before { opacity: 1; }
+    .fw-card:hover .fw-icon { box-shadow: 0 0 30px rgba(59,130,246,.4); }
+
+    .fw-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, rgba(37,99,235,.3), rgba(129,140,248,.2));
+      border: 1px solid rgba(96,165,250,.2);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 20px;
+      transition: box-shadow .4s;
+    }
+    .fw-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+    .fw-card p { font-size: .9rem; color: var(--muted); line-height: 1.7; }
+
+    /* ── WHAT'S INCLUDED - BENTO ── */
+    .included { padding: 100px 0; }
+    .bento { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+
+    .bento-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      backdrop-filter: blur(20px);
+      transition: all .4s ease;
+      position: relative; overflow: hidden;
+    }
+    .bento-item::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(59,130,246,.08) 0%, transparent 60%);
+      opacity: 0; transition: opacity .3s;
+      pointer-events: none;
+    }
+    .bento-item:hover::after { opacity: 1; }
+    .bento-item:hover { border-color: rgba(96,165,250,.25); transform: translateY(-4px); }
+
+    .b1 { grid-column: span 7; }
+    .b2 { grid-column: span 5; }
+    .b3 { grid-column: span 4; }
+    .b4 { grid-column: span 4; }
+    .b5 { grid-column: span 4; }
+    .b6 { grid-column: span 12; background: linear-gradient(135deg, rgba(37,99,235,.15), rgba(129,140,248,.1)); border-color: rgba(96,165,250,.2); }
+
+    .bento-item .bi-icon { font-size: 2rem; margin-bottom: 16px; }
+    .bento-item h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
+    .bento-item p { font-size: .9rem; color: var(--muted); line-height: 1.7; }
+
+    .bento-tag {
+      display: inline-block;
+      background: rgba(37,99,235,.2);
+      border: 1px solid rgba(59,130,246,.3);
+      color: var(--accent);
+      font-size: .7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 4px; margin-bottom: 12px;
+    }
+
+    .b1-inner { display: flex; gap: 24px; align-items: flex-start; }
+    .b1-text h3 { font-size: 1.4rem; font-weight: 800; letter-spacing: -.5px; margin-bottom: 12px; }
+    .b1-text p { font-size: .95rem; color: var(--muted); }
+
+    .checklist { list-style: none; margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .checklist li { display: flex; align-items: center; gap: 10px; font-size: .9rem; color: var(--muted); }
+    .checklist li::before { content: '✓'; color: var(--accent); font-weight: 700; font-size: .85rem; background: rgba(37,99,235,.15); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    .b6-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
+    .b6-text h3 { font-size: 1.3rem; font-weight: 800; }
+    .b6-text p { color: var(--muted); font-size: .95rem; margin-top: 6px; }
+
+    /* ── RESULTS ── */
+    .results { padding: 100px 0; }
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    .result-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px; padding: 36px 28px; text-align: center;
+      backdrop-filter: blur(20px);
+      transition: all .4s ease;
+      position: relative; overflow: hidden;
+    }
+    .result-card::before {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--accent2));
+      transform: scaleX(0); transition: transform .4s ease;
+    }
+    .result-card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(0,0,0,.4); }
+    .result-card:hover::before { transform: scaleX(1); }
+    .result-num {
+      font-size: 3rem; font-weight: 900; letter-spacing: -2px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .result-label { font-size: .9rem; color: var(--muted); font-weight: 500; margin-top: 8px; }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials { padding: 100px 0; }
+    .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .test-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px;
+      backdrop-filter: blur(20px);
+      transition: all .4s ease;
+    }
+    .test-card:hover { border-color: rgba(96,165,250,.25); transform: translateY(-4px); }
+    .stars { color: #f59e0b; font-size: 1rem; letter-spacing: 2px; margin-bottom: 16px; }
+    .test-card blockquote { font-size: .95rem; color: var(--muted); line-height: 1.8; font-style: italic; margin-bottom: 24px; }
+    .test-author { display: flex; align-items: center; gap: 12px; }
+    .test-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .9rem; color: #fff; flex-shrink: 0;
+    }
+    .test-name { font-weight: 700; font-size: .9rem; }
+    .test-role { font-size: .8rem; color: var(--muted); }
+
+    /* ── LEAD FORM ── */
+    .lead-form-section { padding: 100px 0; }
+    .form-wrap {
+      max-width: 640px; margin: 0 auto;
+      background: rgba(15,23,42,.7);
+      border: 1px solid rgba(96,165,250,.2);
+      border-radius: 28px;
+      padding: 56px 48px;
+      backdrop-filter: blur(30px);
+      box-shadow: 0 40px 100px rgba(0,0,0,.5), 0 0 80px rgba(37,99,235,.1);
+      position: relative; overflow: hidden;
+    }
+    .form-wrap::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--accent), var(--accent2));
+    }
+
+    /* ── FAQ ── */
+    .faq-section { padding: 100px 0; }
+    .faq-list { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+
+    .faq-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      overflow: hidden;
+      transition: border-color .3s ease;
+    }
+    .faq-item.open { border-color: rgba(96,165,250,.3); }
+
+    .faq-question {
+      width: 100%; background: none; border: none; cursor: pointer;
+      padding: 24px 28px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      font-family: inherit; font-size: 1rem; font-weight: 700;
+      color: var(--text); text-align: left;
+      transition: color .3s ease;
+    }
+    .faq-item.open .faq-question { color: var(--accent); }
+
+    .faq-icon {
+      width: 28px; height: 28px; flex-shrink: 0;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .35s cubic-bezier(.34,1.56,.64,1);
+      color: var(--muted);
+    }
+    .faq-item.open .faq-icon {
+      background: rgba(37,99,235,.15);
+      border-color: rgba(96,165,250,.3);
+      color: var(--accent);
+      transform: rotate(45deg);
+    }
+
+    .faq-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows .4s ease;
+    }
+    .faq-item.open .faq-body { grid-template-rows: 1fr; }
+
+    .faq-body-inner {
+      overflow: hidden;
+    }
+    .faq-answer {
+      padding: 0 28px 24px;
+      font-size: .95rem; color: var(--muted); line-height: 1.8;
+    }
+    .faq-answer strong { color: var(--text); font-weight: 600; }
+
+    @media (max-width: 768px) {
+      .faq-section { padding: 70px 0; }
+      .faq-question { padding: 20px; font-size: .95rem; }
+      .faq-answer { padding: 0 20px 20px; }
+    }
+
+    .form-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -.8px; text-align: center; margin-bottom: 8px; }
+    .form-sub { text-align: center; color: var(--muted); font-size: .95rem; margin-bottom: 36px; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+    .form-group input {
+      width: 100%;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-family: inherit; font-size: 1rem; color: var(--text);
+      outline: none;
+      transition: all .3s ease;
+    }
+    .form-group input::placeholder { color: rgba(148,163,184,.4); }
+    .form-group input:focus { border-color: var(--primary); background: rgba(37,99,235,.05); box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+
+    .form-submit {
+      width: 100%; margin-top: 8px;
+      background: linear-gradient(135deg, var(--primary), #1d4ed8);
+      color: #fff; border: none; cursor: pointer;
+      padding: 16px; border-radius: 12px;
+      font-family: inherit; font-weight: 700; font-size: 1.05rem;
+      transition: all .3s ease;
+      box-shadow: 0 0 40px rgba(37,99,235,.4);
+      position: relative; overflow: hidden;
+    }
+    .form-submit::before {
+      content: '';
+      position: absolute; top: -50%; left: -60%; width: 40%; height: 200%;
+      background: rgba(255,255,255,.15);
+      transform: skewX(-20deg);
+      transition: left .6s ease;
+    }
+    .form-submit:hover { box-shadow: 0 0 60px rgba(59,130,246,.6); transform: translateY(-2px); }
+    .form-submit:hover::before { left: 120%; }
+
+    .form-privacy { text-align: center; font-size: .78rem; color: var(--muted); margin-top: 16px; }
+    .form-privacy a { color: var(--accent); text-decoration: none; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: .85rem;
+      position: relative; z-index: 2;
+    }
+    .footer-logo { font-weight: 800; font-size: 1.1rem; margin-bottom: 12px; }
+    .footer-logo span { color: var(--accent); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .3s; }
+    .reveal-delay-4 { transition-delay: .4s; }
+
+    /* ── GLOW LINE ── */
+    .glow-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(96,165,250,.4), transparent);
+      margin: 0;
+    }
+
+    /* ── FLOATING BADGE ── */
+    .floating-social {
+      position: fixed; right: 24px; bottom: 24px; z-index: 50;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .fl-btn {
+      width: 48px; height: 48px;
+      background: rgba(15,23,42,.9);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .3s ease;
+      backdrop-filter: blur(20px);
+      text-decoration: none; color: var(--muted);
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    .fl-btn:hover { border-color: rgba(96,165,250,.4); color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,.5); }
+
+    /* ── MENTOR SECTION ── */
+    .mentor { padding: 100px 0; }
+    .mentor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .mentor-photo-wrap {
+      position: relative;
+    }
+    .mentor-photo {
+      width: 100%;
+      aspect-ratio: 4/5;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(37,99,235,.15), rgba(129,140,248,.1));
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+    .mentor-photo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .mentor-photo-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; color: var(--muted); font-size: .85rem;
+    }
+    .mentor-photo-placeholder svg { opacity: .3; }
+    .mentor-badge-float {
+      position: absolute;
+      bottom: -20px; right: -20px;
+      background: rgba(15,23,42,.95);
+      border: 1px solid rgba(96,165,250,.25);
+      border-radius: 16px;
+      padding: 16px 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 40px rgba(0,0,0,.5);
+    }
+    .mentor-badge-float .mbf-num {
+      font-size: 1.6rem; font-weight: 900; letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .mentor-badge-float .mbf-label { font-size: .75rem; color: var(--muted); font-weight: 500; }
+
+    .mentor-content {}
+    .mentor-content .section-tag { margin-bottom: 16px; }
+    .mentor-content h2 {
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 800; letter-spacing: -1px; line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .mentor-content .mentor-age {
+      color: var(--accent); font-size: .9rem; font-weight: 600; margin-bottom: 24px;
+    }
+    .mentor-story { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+    .mentor-story p { font-size: .95rem; color: var(--muted); line-height: 1.8; }
+    .mentor-story p strong { color: var(--text); font-weight: 600; }
+    .mentor-story p.highlight-line {
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+      font-style: italic;
+      border-left: 3px solid var(--accent);
+      padding-left: 16px;
+    }
+    .mentor-jobs {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px;
+    }
+    .mentor-job-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 12px;
+      font-size: .8rem; color: var(--muted); font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .mentor-grid { grid-template-columns: 1fr; gap: 40px; }
+      .mentor-badge-float { bottom: -16px; right: 16px; }
+      .mentor { padding: 70px 0; }
+    }
+    @media (max-width: 768px) {
+      .b1, .b2, .b3, .b4, .b5, .b6 { grid-column: span 12; }
+      .b1-inner { flex-direction: column; }
+      .b6-inner { flex-direction: column; }
+      .b6-inner .btn-primary { width: 100%; justify-content: center; }
+      .hero-stats { gap: 20px; }
+      .hero-stats .stat-item { min-width: calc(50% - 10px); }
+      .form-wrap { padding: 36px 20px; }
+      .for-who-grid { grid-template-columns: 1fr; }
+      .for-who, .included, .results, .testimonials, .lead-form-section { padding: 70px 0; }
+      .section-header { margin-bottom: 40px; }
+      .hero { padding: 100px 0 60px; }
+      .hero-actions { flex-direction: column; }
+      .hero-actions .btn-primary,
+      .hero-actions .btn-secondary { width: 100%; justify-content: center; }
+      .results-grid { grid-template-columns: repeat(2, 1fr); }
+      .test-grid { grid-template-columns: 1fr; }
+      .floating-social { bottom: 16px; right: 16px; }
+      .section-title { letter-spacing: -1px; }
+    }
+
+    @media (max-width: 400px) {
+      .results-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2rem; letter-spacing: -1px; }
+    }
+
+    /* ── CURSOR GLOW (desktop only) ── */
+    .cursor-glow {
+      position: fixed;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37,99,235,.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+      transform: translate(-50%, -50%);
+      transition: left .1s ease, top .1s ease;
+      display: none;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .cursor-glow { display: block; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- CANVAS -->
+  <canvas id="particles"></canvas>
+
+  <!-- ORBS -->
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <!-- CURSOR GLOW -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="container">
+      <div class="nav-inner">
+        <div class="logo">Tráfego<span>Pro</span></div>
+        <button class="nav-cta" onclick="document.getElementById('form').scrollIntoView({behavior:'smooth'})">Quero Entrar →</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          🔥 Turma Julho 2025 — Últimas vagas abertas
+        </div>
+
+        <h1>
+          <span class="hero-title-static">De zero a gestor de tráfego —</span>
+          <span class="hero-title-cycling" id="cyclingTitle" aria-live="polite">
+            <span class="cycling-word state-active">sem faculdade</span>
+            <span class="cycling-word state-below">sem experiência</span>
+            <span class="cycling-word state-below">sem padrinho</span>
+            <span class="cycling-word state-below">do seu jeito</span>
+            <span class="cycling-word state-below">do zero mesmo</span>
+          </span>
+          <span class="hero-title-static" style="font-size: clamp(1.4rem, 3.5vw, 2.4rem); font-weight: 600; color: var(--muted); letter-spacing: -0.5px;">Do zero ao primeiro cliente em 60 dias.</span>
+        </h1>
+
+        <p>
+          Saí do zero sem curso caro, sem contato, sem dinheiro sobrando. Hoje ensino o caminho mais curto pra você chegar lá — com método, acompanhamento real e sem enrolação.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn-primary" href="https://wa.me/5511943529921?text=Ol%C3%A1%20Douglas%2C%20quero%20saber%20mais%20sobre%20a%20mentoria%20de%20tr%C3%A1fego%20pago!" target="_blank" rel="noopener">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Quero minha vaga
+          </a>
+          <button class="btn-secondary" onclick="document.getElementById('sobre').scrollIntoView({behavior:'smooth'})">
+            Ver o que tá incluso
+          </button>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-num" data-count="847">0<span>+</span></div>
+            <div class="stat-label">Alunos formados</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" data-count="60">0<span> dias</span></div>
+            <div class="stat-label">Do zero ao resultado</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" data-count="98">0<span>%</span></div>
+            <div class="stat-label">Taxa de satisfação</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" data-count="4.9">0<span>★</span></div>
+            <div class="stat-label">Avaliação média</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- PROOF BAR -->
+  <div class="proof-bar">
+    <div class="proof-track" id="proofTrack">
+      <div class="proof-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Meta Ads
+      </div>
+      <div class="proof-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Google Ads
+      </div>
+      <div class="proof-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        TikTok Ads
+      </div>
+      <div class="proof-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        +R$2M gerenciados
+      </div>
+      <div class="proof-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        847 alunos aprovados
+      </div>
+      <div class="proof-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Suporte ao vivo
+      </div>
+      <!-- duplicate for loop -->
+      <div class="proof-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Meta Ads
+      </div>
+      <div class="proof-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Google Ads
+      </div>
+      <div class="proof-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        TikTok Ads
+      </div>
+      <div class="proof-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        +R$2M gerenciados
+      </div>
+      <div class="proof-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        847 alunos aprovados
+      </div>
+      <div class="proof-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Suporte ao vivo
+      </div>
+    </div>
+  </div>
+
+  <div class="glow-divider"></div>
+
+  <!-- PROBLEM / SOLUTION -->
+  <section class="psq-section" id="psq">
+    <div class="container">
+      <div class="section-header center reveal">
+        <div class="section-tag">Já fui assim também</div>
+        <h2 class="section-title">Reconhece algum<br>desses cenários?</h2>
+        <p class="section-sub">Antes de aprender tráfego de verdade, eu vivia tudo isso. Veja o que muda.</p>
+      </div>
+
+      <div class="psq-stage" id="psqStage">
+
+        <!-- FLIP CARD -->
+        <div class="psq-flip-wrap" id="psqFlipWrap">
+          <div class="psq-card" id="psqCard">
+
+            <!-- FRONT: Problemas -->
+            <div class="psq-face psq-front">
+              <div class="psq-face-label">
+                <span class="psq-dot"></span>
+                O que você está vivendo agora
+              </div>
+              <div id="psqFrontLines"></div>
+            </div>
+
+            <!-- BACK: Soluções -->
+            <div class="psq-face psq-back">
+              <div class="psq-face-label">
+                <span class="psq-dot"></span>
+                O que você vai conquistar
+              </div>
+              <div id="psqBackLines"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SPLIT ESQUERDO (problemas) -->
+        <div class="psq-split-card psq-split-left" id="psqSplitLeft">
+          <div class="psq-split-label">
+            <span class="psq-dot"></span>
+            Antes
+          </div>
+          <div id="psqSplitLeftLines"></div>
+        </div>
+
+        <!-- SPLIT DIREITO (soluções) -->
+        <div class="psq-split-card psq-split-right" id="psqSplitRight">
+          <div class="psq-split-label">
+            <span class="psq-dot"></span>
+            Depois
+          </div>
+          <div id="psqSplitRightLines"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-divider"></div>
+
+  <!-- MENTOR -->
+  <section class="mentor">
+    <div class="container">
+      <div class="mentor-grid">
+
+        <!-- FOTO -->
+        <div class="mentor-photo-wrap reveal">
+          <div class="mentor-photo">
+            <img src="NOVAS 3.jpg" alt="Douglas Poiato" />
+          </div>
+          <div class="mentor-badge-float">
+            <div class="mbf-num">847+</div>
+            <div class="mbf-label">Alunos transformados</div>
+          </div>
+        </div>
+
+        <!-- CONTEÚDO -->
+        <div class="mentor-content reveal reveal-delay-2">
+          <div class="section-tag">Quem vai te ensinar</div>
+          <h2>Douglas Poiato</h2>
+          <div class="mentor-age">26 anos · Casado · Pai de família</div>
+
+          <div class="mentor-story">
+            <p>
+              Comecei a trabalhar cedo, sem dinheiro sobrando e sem ninguém pra abrir porta. Aprendi tráfego pago do zero, na prática, errando muito antes de acertar.
+            </p>
+            <p>
+              Tenho ensino médio incompleto — parei no último ano porque <strong>precisava trabalhar</strong>. Não tinha escolha.
+            </p>
+            <p>
+              Em um dos momentos mais difíceis da minha vida, <strong>eu e minha esposa ficamos desempregados ao mesmo tempo.</strong> Precisamos pedir ajuda a parentes até para comer. Foi humilhante e doloroso.
+            </p>
+            <p class="highlight-line">
+              "Hoje, graças a Deus e ao mercado digital, consigo retribuir cada uma dessas ajudas — e ajudar outras pessoas a nunca passarem pelo que passei."
+            </p>
+            <p>
+              Não vim de família rica, não tive faculdade, não tive padrinho. Aprendi tráfego pago na <strong>prática, errando, investindo do próprio bolso</strong> — e foi exatamente isso que me fez entender o que realmente funciona.
+            </p>
+          </div>
+
+<a class="btn-primary" href="https://wa.me/5511943529921?text=Ol%C3%A1%20Douglas%2C%20quero%20saber%20mais%20sobre%20a%20mentoria%20de%20tr%C3%A1fego%20pago!" target="_blank" rel="noopener">
+            Quero aprender com o Douglas
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-divider"></div>
+
+  <!-- FOR WHO -->
+  <section class="for-who" id="sobre">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-tag">Isso é pra você?</div>
+        <h2 class="section-title">Não é pra todo mundo.<br>Mas pode ser pra você.</h2>
+        <p class="section-sub">Se você se encaixa em pelo menos um desses casos, a mentoria foi feita pra você.</p>
+      </div>
+
+      <div class="for-who-grid">
+        <div class="fw-card reveal reveal-delay-1">
+          <div class="fw-icon">🚀</div>
+          <h3>Quer sair do trabalho CLT</h3>
+          <p>Cansou de trocar hora por dinheiro e quer construir uma fonte de renda que não depende de bater ponto todo dia.</p>
+        </div>
+        <div class="fw-card reveal reveal-delay-2">
+          <div class="fw-icon">💼</div>
+          <h3>Tem negócio mas não aparece</h3>
+          <p>Seu produto ou serviço é bom, mas o problema é que ninguém te acha. Você quer aprender a aparecer na frente de quem já quer comprar.</p>
+        </div>
+        <div class="fw-card reveal reveal-delay-3">
+          <div class="fw-icon">🎯</div>
+          <h3>Já jogou dinheiro fora em anúncio</h3>
+          <p>Impulsionou post, tentou campanha, não voltou nada. Quer entender de uma vez por que não funcionou e o que fazer diferente.</p>
+        </div>
+        <div class="fw-card reveal reveal-delay-1">
+          <div class="fw-icon">💡</div>
+          <h3>Quer trabalhar de onde quiser</h3>
+          <p>Quer atender clientes, cobrar bem pelo serviço e não precisar de chefe, escritório ou horário fixo.</p>
+        </div>
+        <div class="fw-card reveal reveal-delay-2">
+          <div class="fw-icon">📈</div>
+          <h3>Vende como afiliado mas trava</h3>
+          <p>O produto é bom, você até vende orgânico, mas na hora de pagar por tráfego o resultado não aparece e você não sabe por quê.</p>
+        </div>
+        <div class="fw-card reveal reveal-delay-3">
+          <div class="fw-icon">⏱️</div>
+          <h3>Família crescendo, conta chegando</h3>
+          <p>Filho pequeno, boleto no nome, pressão por todos os lados. Precisa de uma renda que cresce com você — não que some se você parar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-divider"></div>
+
+  <!-- WHAT'S INCLUDED -->
+  <section class="included">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-tag">O que você vai aprender</div>
+        <h2 class="section-title">Tudo que eu queria ter tido<br>quando comecei do zero</h2>
+      </div>
+
+      <div class="bento">
+        <div class="bento-item b1 reveal">
+          <div class="bento-tag">Principal</div>
+          <div class="b1-inner">
+            <div style="font-size:3.5rem;line-height:1">🎓</div>
+            <div class="b1-text">
+              <h3>Meta Ads e Google Ads do zero ao avançado</h3>
+              <p>Sem enrolação, sem teoria inútil. Você aprende o que funciona na prática — na ordem certa, do jeito que eu uso hoje com clientes reais.</p>
+              <ul class="checklist">
+                <li>Como estruturar campanhas que vendem</li>
+                <li>Público certo na hora certa</li>
+                <li>Remarketing que recupera quem saiu sem comprar</li>
+                <li>Como ler os números e saber o que ajustar</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="bento-item b2 reveal reveal-delay-1">
+          <div class="bi-icon">🔴</div>
+          <h3>Toda semana ao vivo comigo</h3>
+          <p>Toda semana eu abro a tela, analiso campanha ao vivo e tiro dúvida em tempo real. Você não fica sozinho em nenhum momento.</p>
+        </div>
+
+        <div class="bento-item b3 reveal">
+          <div class="bi-icon">💬</div>
+          <h3>Grupo direto no WhatsApp</h3>
+          <p>Travou numa campanha? Manda no grupo. Eu respondo. Sem fila de suporte, sem bot — você fala comigo de verdade.</p>
+        </div>
+
+        <div class="bento-item b4 reveal reveal-delay-1">
+          <div class="bi-icon">📊</div>
+          <h3>Eu olho pra sua campanha</h3>
+          <p>Você manda o que está rodando e eu falo exatamente o que tá errado e o que mudar. Sem achismo, com dados.</p>
+        </div>
+
+        <div class="bento-item b5 reveal reveal-delay-2">
+          <div class="bi-icon">📁</div>
+          <h3>Tudo pronto pra você usar já</h3>
+          <p>Planilha de métricas, checklist de campanha, roteiro de copy — você não começa do zero, começa de onde eu parei.</p>
+        </div>
+
+        <div class="bento-item b6 reveal">
+          <div class="b6-inner">
+            <div class="b6-text">
+              <h3>🎁 Bônus: TikTok Ads do zero — só pra essa turma</h3>
+              <p>Módulo completo de TikTok Ads de graça pra quem entrar agora. É a plataforma que mais cresce e poucos gestores dominam ainda.</p>
+            </div>
+            <a class="btn-primary" href="https://wa.me/5511943529921?text=Ol%C3%A1%20Douglas%2C%20quero%20saber%20mais%20sobre%20a%20mentoria%20de%20tr%C3%A1fego%20pago!" target="_blank" rel="noopener">
+              Quero esse bônus →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-divider"></div>
+
+  <!-- RESULTS -->
+  <section class="results">
+    <div class="container">
+      <div class="section-header center reveal">
+        <div class="section-tag">Números reais</div>
+        <h2 class="section-title">Os números de quem<br>aplicou de verdade</h2>
+        <p class="section-sub">Não são projeções. São resultados de alunos reais que passaram pela mentoria.</p>
+      </div>
+
+      <div class="results-grid">
+        <div class="result-card reveal">
+          <div class="result-num" data-count="847">0</div>
+          <div class="result-label">Alunos que já passaram por aqui</div>
+        </div>
+        <div class="result-card reveal reveal-delay-1">
+          <div class="result-num" data-count="2">R$<span>0</span>M+</div>
+          <div class="result-label">Em verba gerenciada pelos alunos</div>
+        </div>
+        <div class="result-card reveal reveal-delay-2">
+          <div class="result-num" data-count="92">0<span>%</span></div>
+          <div class="result-label">Tiveram o 1º resultado em até 30 dias</div>
+        </div>
+        <div class="result-card reveal reveal-delay-3">
+          <div class="result-num" data-count="4">0<span>x</span></div>
+          <div class="result-label">ROI médio das campanhas</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-divider"></div>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials">
+    <div class="container">
+      <div class="section-header center reveal">
+        <div class="section-tag">Quem já passou por aqui</div>
+        <h2 class="section-title">Na voz de quem aplicou<br>e teve resultado</h2>
+      </div>
+
+      <div class="test-grid">
+        <div class="test-card reveal">
+          <div class="stars">★★★★★</div>
+          <blockquote>"Em 45 dias já tava fechando meu primeiro cliente como gestor. Nunca pensei que ia acontecer tão rápido. O Douglas ensina de verdade, sem enrolação."</blockquote>
+          <div class="test-author">
+            <div class="test-avatar">MF</div>
+            <div>
+              <div class="test-name">Marcos Ferreira</div>
+              <div class="test-role">Gestor de Tráfego Freelancer</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="test-card reveal reveal-delay-1">
+          <div class="stars">★★★★★</div>
+          <blockquote>"Já tinha tentado outros dois cursos e não saía do lugar. Aqui em 30 dias meu ROAS foi de 1,2 pra 4,8. A diferença é que ele te acompanha de verdade."</blockquote>
+          <div class="test-author">
+            <div class="test-avatar">AL</div>
+            <div>
+              <div class="test-name">Ana Lima</div>
+              <div class="test-role">Empreendedora Digital</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="test-card reveal reveal-delay-2">
+          <div class="stars">★★★★★</div>
+          <blockquote>"Mandei mensagem às 22h com uma dúvida numa campanha que tava sangrando dinheiro. O Douglas respondeu em minutos. Isso não tem preço."</blockquote>
+          <div class="test-author">
+            <div class="test-avatar">RC</div>
+            <div>
+              <div class="test-name">Rafael Costa</div>
+              <div class="test-role">Afiliado Digital</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-divider"></div>
+
+  <!-- FAQ -->
+  <section class="faq-section">
+    <div class="container">
+      <div class="section-header center reveal">
+        <div class="section-tag">Dúvidas frequentes</div>
+        <h2 class="section-title">Antes de decidir,<br>deixa eu responder</h2>
+        <p class="section-sub">Se tiver alguma dúvida que não está aqui, me manda mensagem direto.</p>
+      </div>
+
+      <div class="faq-list">
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            Preciso ter experiência com marketing ou tráfego pago?
+            <span class="faq-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            </span>
+          </button>
+          <div class="faq-body"><div class="faq-body-inner">
+            <p class="faq-answer">
+              Não. A mentoria foi criada especialmente pra quem está começando do zero. <strong>Eu mesmo comecei sem saber nada</strong> — sem curso, sem faculdade, sem contato na área. Se você sabe mexer no celular e tem vontade de aprender, isso é suficiente pra começar.
+            </p>
+          </div></div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-1">
+          <button class="faq-question" aria-expanded="false">
+            Em quanto tempo vou ter resultado?
+            <span class="faq-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            </span>
+          </button>
+          <div class="faq-body"><div class="faq-body-inner">
+            <p class="faq-answer">
+              Depende do que você chama de resultado. <strong>92% dos alunos tiveram o primeiro retorno concreto em até 30 dias</strong> — seja o primeiro cliente fechado, a primeira campanha com ROAS positivo ou a primeira venda como afiliado. Em 60 dias, a maioria já está trabalhando de forma independente.
+            </p>
+          </div></div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-2">
+          <button class="faq-question" aria-expanded="false">
+            Quanto preciso investir em anúncios durante a mentoria?
+            <span class="faq-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            </span>
+          </button>
+          <div class="faq-body"><div class="faq-body-inner">
+            <p class="faq-answer">
+              Você consegue aprender e validar campanhas com <strong>R$10 a R$30 por dia</strong>. Não precisa de uma verba grande pra começar — o mais importante no início é entender como o algoritmo funciona, não quanto você gasta. Com o método certo, pouco dinheiro já gera aprendizado real.
+            </p>
+          </div></div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            Consigo fazer isso enquanto ainda estou no meu emprego atual?
+            <span class="faq-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            </span>
+          </button>
+          <div class="faq-body"><div class="faq-body-inner">
+            <p class="faq-answer">
+              Sim, e a maioria começa assim. <strong>Você não precisa largar o emprego pra entrar.</strong> As aulas foram pensadas pra quem tem rotina cheia — você estuda no horário que der, e as lives ficam gravadas. Vários alunos fecharam os primeiros clientes ainda trabalhando CLT e só saíram quando a renda do tráfego superou o salário.
+            </p>
+          </div></div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-1">
+          <button class="faq-question" aria-expanded="false">
+            Precisa de faculdade ou ensino médio completo?
+            <span class="faq-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            </span>
+          </button>
+          <div class="faq-body"><div class="faq-body-inner">
+            <p class="faq-answer">
+              Não precisa de nada disso. <strong>Eu parei o ensino médio no último ano</strong> pra trabalhar e hoje gerencio campanhas de verdade. O mercado digital não te pede diploma — ele pede resultado. E é exatamente isso que a mentoria te ensina a entregar.
+            </p>
+          </div></div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-2">
+          <button class="faq-question" aria-expanded="false">
+            Como funciona o suporte durante a mentoria?
+            <span class="faq-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            </span>
+          </button>
+          <div class="faq-body"><div class="faq-body-inner">
+            <p class="faq-answer">
+              Você entra num grupo de WhatsApp direto comigo. <strong>Sem bot, sem equipe de suporte, sem fila.</strong> Você manda a dúvida, eu respondo. Toda semana tem aula ao vivo onde analiso campanhas em tempo real — incluindo as suas, se quiser. É o suporte que eu queria ter tido quando comecei.
+            </p>
+          </div></div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            E se eu não gostar ou não funcionar pra mim?
+            <span class="faq-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            </span>
+          </button>
+          <div class="faq-body"><div class="faq-body-inner">
+            <p class="faq-answer">
+              Você tem <strong>7 dias de garantia</strong> sem perguntas. Se entrar, assistir as primeiras aulas e achar que não é o que esperava, é só me falar e eu devolvo 100% do valor. Não quero dinheiro de quem não vai aplicar — quero alunos que chegam no resultado.
+            </p>
+          </div></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-divider"></div>
+
+  <!-- WHATSAPP CTA -->
+  <section class="lead-form-section" id="form">
+    <div class="container">
+      <div class="form-wrap reveal">
+        <div class="form-title">Sua vaga tá aqui</div>
+        <div class="form-sub">Clica no botão e fala direto comigo no WhatsApp. Sem formulário, sem robô — sou eu do outro lado.</div>
+
+        <a class="form-submit" href="https://wa.me/5511943529921?text=Ol%C3%A1%20Douglas%2C%20quero%20saber%20mais%20sobre%20a%20mentoria%20de%20tr%C3%A1fego%20pago!" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Falar com o Douglas agora →
+        </a>
+
+        <p class="form-privacy">Respondo pessoalmente. Sem spam, sem lista de transmissão.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER (dentro do page-wrapper) -->
+  <footer>
+    <div class="container">
+      <div class="footer-logo">Tráfego<span>Pro</span></div>
+      <p>© 2026 · Douglas Poiato · Todos os direitos reservados.</p>
+      <p style="margin-top:8px;font-size:.78rem;">Este site não tem nenhuma afiliação com Meta, Google ou TikTok.</p>
+    </div>
+  </footer>
+
+  <!-- FLOATING BUTTONS (fora do page-wrapper pra não cortar) -->
+  </div><!-- /page-wrapper -->
+  <div class="floating-social">
+    <a href="https://wa.me/5511943529921?text=Ol%C3%A1%20Douglas%2C%20quero%20saber%20mais%20sobre%20a%20mentoria%20de%20tr%C3%A1fego%20pago!" target="_blank" rel="noopener" class="fl-btn" title="WhatsApp">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </a>
+    <a href="#" class="fl-btn" title="Topo" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+    </a>
+  </div>
+
+  <script>
+    // ── PARTICLES ──
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.r = Math.random() * 1.5 + 0.3;
+        this.speed = Math.random() * 0.4 + 0.1;
+        this.angle = Math.random() * Math.PI * 2;
+        this.opacity = Math.random() * 0.5 + 0.1;
+        this.pulse = Math.random() * Math.PI * 2;
+      }
+      update() {
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        this.pulse += 0.02;
+        this.opacity = (Math.sin(this.pulse) * 0.2 + 0.3);
+        if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = '#60a5fa';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+    function drawConnections() {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < 100) {
+            ctx.save();
+            ctx.globalAlpha = (1 - dist/100) * 0.08;
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => { p.update(); p.draw(); });
+      drawConnections();
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // ── NAVBAR ──
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ── CURSOR GLOW ──
+    const glow = document.getElementById('cursorGlow');
+    document.addEventListener('mousemove', e => {
+      glow.style.left = e.clientX + 'px';
+      glow.style.top = e.clientY + 'px';
+    });
+
+    // ── BENTO MOUSE TRACKING ──
+    document.querySelectorAll('.bento-item').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        card.style.setProperty('--mx', x + '%');
+        card.style.setProperty('--my', y + '%');
+      });
+    });
+
+    // ── SCROLL REVEAL ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── COUNTER ANIMATION ──
+    function animateCount(el, target, suffix = '') {
+      const isDecimal = String(target).includes('.');
+      const duration = 2000;
+      const start = performance.now();
+      const update = (now) => {
+        const p = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        const val = isDecimal ? (target * ease).toFixed(1) : Math.floor(target * ease);
+        el.innerHTML = val + suffix;
+        if (p < 1) requestAnimationFrame(update);
+      };
+      requestAnimationFrame(update);
+    }
+
+    const counterObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const el = e.target;
+          const raw = el.dataset.count;
+          const suffix = el.querySelector('span') ? el.querySelector('span').outerHTML : '';
+          animateCount(el, parseFloat(raw), suffix);
+          counterObs.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('[data-count]').forEach(el => counterObs.observe(el));
+
+    // ── WHATSAPP MASK ──
+    const wp = document.getElementById('whatsapp');
+    if (wp) {
+      wp.addEventListener('input', function() {
+        let v = this.value.replace(/\D/g, '').substring(0, 11);
+        if (v.length > 6) v = '(' + v.substring(0,2) + ') ' + v.substring(2,7) + '-' + v.substring(7);
+        else if (v.length > 2) v = '(' + v.substring(0,2) + ') ' + v.substring(2);
+        else if (v.length > 0) v = '(' + v;
+        this.value = v;
+      });
+    }
+
+    // ── PROBLEM / SOLUTION ANIMATION ──
+    (function() {
+      const PROBLEMS = [
+        { title: "Anúncio rodando, dinheiro sumindo",   sub: "Você investe mas não vê retorno nenhum" },
+        { title: "Não sabe o que está errando",          sub: "Cada ajuste parece um tiro no escuro" },
+        { title: "Gasta com agência e não vê resultado", sub: "Paga caro e fica sem controle nenhum" },
+        { title: "Sem método, só tentativa e erro",      sub: "Cada campanha começa do zero" },
+      ];
+      const SOLUTIONS = [
+        { title: "Campanhas que convertem de verdade",  sub: "Estrutura validada com dados reais" },
+        { title: "Você entende cada número do painel",  sub: "Sabe exatamente o que ajustar e por quê" },
+        { title: "ROI médio de 4x no investimento",     sub: "Independência total — sem depender de ninguém" },
+        { title: "Método provado em 60 dias",           sub: "Do zero ao primeiro resultado com clareza" },
+      ];
+
+      const stage       = document.getElementById('psqStage');
+      const flipWrap    = document.getElementById('psqFlipWrap');
+      const card        = document.getElementById('psqCard');
+      const frontLines  = document.getElementById('psqFrontLines');
+      const backLines   = document.getElementById('psqBackLines');
+      const splitLeft   = document.getElementById('psqSplitLeft');
+      const splitRight  = document.getElementById('psqSplitRight');
+      const splitLL     = document.getElementById('psqSplitLeftLines');
+      const splitRL     = document.getElementById('psqSplitRightLines');
+
+      if (!stage) return;
+
+      // build front lines
+      PROBLEMS.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'psq-line';
+        div.innerHTML = `<span class="psq-text"></span><span class="psq-sub">${p.sub}</span>`;
+        frontLines.appendChild(div);
+      });
+
+      // build back lines
+      SOLUTIONS.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'psq-line';
+        div.innerHTML = `<span class="psq-text"></span><span class="psq-sub">${s.sub}</span>`;
+        backLines.appendChild(div);
+      });
+
+      // build split lines
+      PROBLEMS.forEach(p => {
+        const d = document.createElement('div');
+        d.className = 'psq-split-line';
+        d.innerHTML = `<span class="psq-split-title">${p.title}</span><span class="psq-split-sub">${p.sub}</span>`;
+        splitLL.appendChild(d);
+      });
+      SOLUTIONS.forEach(s => {
+        const d = document.createElement('div');
+        d.className = 'psq-split-line';
+        d.innerHTML = `<span class="psq-split-title">${s.title}</span><span class="psq-split-sub">${s.sub}</span>`;
+        splitRL.appendChild(d);
+      });
+
+      function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+      function typeText(lineEl, text, speed = 32) {
+        return new Promise(resolve => {
+          const span = lineEl.querySelector('.psq-text');
+          let i = 0;
+          const iv = setInterval(() => {
+            span.textContent += text[i++];
+            if (i >= text.length) { clearInterval(iv); resolve(); }
+          }, speed);
+        });
+      }
+
+      function strike(lineEl) {
+        return new Promise(resolve => {
+          lineEl.classList.add('struck');
+          setTimeout(resolve, 350);
+        });
+      }
+
+      async function run() {
+        const fLines = frontLines.querySelectorAll('.psq-line');
+        const bLines = backLines.querySelectorAll('.psq-line');
+
+        // sync card height to content once populated
+        await wait(100);
+
+        // 1 — type + strike problems
+        for (let i = 0; i < PROBLEMS.length; i++) {
+          await typeText(fLines[i], PROBLEMS[i].title);
+          fLines[i].querySelector('.psq-sub').classList.add('visible');
+          await wait(180);
+          await strike(fLines[i]);
+          await wait(120);
+        }
+
+        // 2 — flip
+        await wait(500);
+        card.classList.add('flipped');
+        // no meio da animação esconde o front via JS — fix backface mobile
+        await wait(420);
+        card.querySelector('.psq-front').classList.add('face-hidden');
+        await wait(530);
+
+        // 3 — type solutions
+        for (let i = 0; i < SOLUTIONS.length; i++) {
+          await typeText(bLines[i], SOLUTIONS[i].title);
+          bLines[i].querySelector('.psq-sub').classList.add('visible');
+          await wait(200);
+        }
+
+        // 4 — split
+        await wait(650);
+
+        // measure card height and sync to split cards
+        const h = card.getBoundingClientRect().height;
+        splitLeft.style.minHeight  = h + 'px';
+        splitRight.style.minHeight = h + 'px';
+        // desktop: side by side → stage height = card height
+        // mobile: stacked → stage height = 2× card height + gap
+        const isMobile = window.innerWidth <= 768;
+        stage.style.minHeight = isMobile ? (h * 2 + 56) + 'px' : (h + 40) + 'px';
+
+        // fade flip card out
+        flipWrap.classList.add('hide');
+
+        // slide split cards out vertically
+        await wait(80);
+        splitLeft.style.opacity  = '1';
+        splitRight.style.opacity = '1';
+        await wait(30);
+        splitLeft.classList.add('out');
+        splitRight.classList.add('out');
+      }
+
+      // trigger on scroll into view (once)
+      const psqObs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            psqObs.unobserve(e.target);
+            run();
+          }
+        });
+      }, { threshold: 0.35 });
+      psqObs.observe(stage);
+    })();
+
+    // ── CYCLING WORDS ──
+    (function() {
+      const container = document.getElementById('cyclingTitle');
+      if (!container) return;
+      const words = Array.from(container.querySelectorAll('.cycling-word'));
+      let current = 0;
+
+      function next() {
+        const prev = current;
+        current = (current + 1) % words.length;
+
+        // saída: ativo → acima
+        words[prev].classList.remove('state-active');
+        words[prev].classList.add('state-above');
+
+        // entrada: abaixo → ativo
+        words[current].classList.remove('state-below', 'state-above');
+        words[current].classList.add('state-active');
+
+        // após transição, empurra o "acima" para baixo (fila)
+        setTimeout(() => {
+          words[prev].classList.remove('state-above');
+          words[prev].classList.add('state-below');
+        }, 500);
+      }
+
+      setInterval(next, 2400);
+    })();
+
+    // ── FAQ ACCORDION ──
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(el => {
+          el.classList.remove('open');
+          el.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+        });
+        if (!isOpen) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
